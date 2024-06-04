@@ -37,6 +37,7 @@ type ls struct {
 	solution bool
 	group    bool
 	search   string
+	expiration bool
 }
 
 func init() {
@@ -53,6 +54,7 @@ func (cmd *ls) Register(ctx context.Context, f *flag.FlagSet) {
 	f.BoolVar(&cmd.solution, "s", false, "List solution users")
 	f.BoolVar(&cmd.group, "group", false, "List users in group")
 	f.StringVar(&cmd.search, "search", "", "Search users in group")
+	f.BoolVar(&cmd.expiration, "expiration", false, "Show expiration days for password")
 }
 
 func (cmd *ls) Description() string {
@@ -112,6 +114,20 @@ func (r personResult) Write(w io.Writer) error {
 	return tw.Flush()
 }
 
+type personResultWithExpiration struct {
+	types.AdminPersonUser
+	ExpirationDays int32
+}
+type personResultWithExpirationArray []personResultWithExpiration
+
+func (r personResultWithExpirationArray) Write(w io.Writer) error {
+	tw := tabwriter.NewWriter(w, 2, 0, 2, ' ', 0)
+	for _, info := range r {
+		fmt.Fprintf(tw, "%s\t%s\t%d\n", info.Id.Name, info.Details.Description, info.ExpirationDays)
+	}
+	return tw.Flush()
+}
+
 func (cmd *ls) Run(ctx context.Context, f *flag.FlagSet) error {
 	arg := f.Arg(0)
 
@@ -142,7 +158,19 @@ func (cmd *ls) Run(ctx context.Context, f *flag.FlagSet) error {
 		if err != nil {
 			return err
 		}
+		if cmd.expiration {
+			infoWithExpiration := []personResultWithExpiration{}
 
-		return cmd.WriteResult(personResult(info))
+			for _, pr := range personResult(info) {
+				days, err := c.GetDaysRemainingUntilPasswordExpiration(ctx, pr.Id)
+				if err != nil {
+					return err
+				}
+				infoWithExpiration = append(infoWithExpiration, personResultWithExpiration{AdminPersonUser: pr, ExpirationDays: days})
+			}
+			return cmd.WriteResult(personResultWithExpirationArray(infoWithExpiration))
+		} else {
+			return cmd.WriteResult(personResult(info))
+		}
 	})
 }

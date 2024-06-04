@@ -1862,3 +1862,24 @@ func UpdateSmtpConfiguration(ctx context.Context, r soap.RoundTripper, req *type
 
 	return resBody.Res, nil
 }
+
+type GetDaysRemainingUntilPasswordExpirationBody struct {
+	Req    *types.GetDaysRemainingUntilPasswordExpiration         `xml:"urn:sso GetDaysRemainingUntilPasswordExpiration,omitempty"`
+	Res    *types.GetDaysRemainingUntilPasswordExpirationResponse `xml:"urn:sso GetDaysRemainingUntilPasswordExpirationResponse,omitempty"`
+	Fault_ *soap.Fault                                       `xml:"http://schemas.xmlsoap.org/soap/envelope/ Fault,omitempty"`
+}
+
+func (b *GetDaysRemainingUntilPasswordExpirationBody) Fault() *soap.Fault { return b.Fault_ }
+
+func GetDaysRemainingUntilPasswordExpiration(ctx context.Context, r soap.RoundTripper, req *types.GetDaysRemainingUntilPasswordExpiration) (*types.GetDaysRemainingUntilPasswordExpirationResponse, error) {
+	var reqBody, resBody GetDaysRemainingUntilPasswordExpirationBody
+
+	reqBody.Req = req
+
+	if err := r.RoundTrip(ctx, &reqBody, &resBody); err != nil {
+		return nil, err
+	}
+
+	return resBody.Res, nil
+}
+

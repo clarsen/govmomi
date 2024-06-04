@@ -588,3 +588,17 @@ func (c *Client) UpdateLdapAuthnType(ctx context.Context, name string, auth type
 	_, err := methods.UpdateLdapAuthnType(ctx, c, &req)
 	return err
 }
+
+func (c *Client) GetDaysRemainingUntilPasswordExpiration(ctx context.Context, userId types.PrincipalId) (int32, error) {
+	req := types.GetDaysRemainingUntilPasswordExpiration{
+		This: c.ServiceContent.PrincipalManagementService,
+		UserId: userId,
+	}
+
+	res, err := methods.GetDaysRemainingUntilPasswordExpiration(ctx, c, &req)
+	if err != nil {
+		return 0, err
+	}
+
+	return res.Returnval, nil
+}

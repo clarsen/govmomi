@@ -2148,3 +2148,24 @@ func init() {
 
 type UpdateSmtpConfigurationResponse struct {
 }
+
+type GetDaysRemainingUntilPasswordExpirationType struct {
+	This   types.ManagedObjectReference `xml:"_this"`
+	UserId PrincipalId                  `xml:"userId"`
+}
+
+func init() {
+	types.Add("sso:GetDaysRemainingUntilPasswordExpirationType", reflect.TypeOf((*GetDaysRemainingUntilPasswordExpirationType)(nil)).Elem())
+}
+
+type GetDaysRemainingUntilPasswordExpirationResponse struct {
+	Returnval int32 `xml:"returnval"`
+}
+
+type GetDaysRemainingUntilPasswordExpiration GetDaysRemainingUntilPasswordExpirationType
+
+func init() {
+	types.Add("sso:GetDaysRemainingUntilPasswordExpiration", reflect.TypeOf((*GetDaysRemainingUntilPasswordExpiration)(nil)).Elem())
+}
+
+
